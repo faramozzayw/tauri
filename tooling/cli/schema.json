@@ -171,6 +171,7 @@
         },
         "updater": {
           "active": false,
+          "allowHttpEndpoint": false,
           "dialog": true,
           "pubkey": "",
           "windows": {
@@ -435,6 +436,7 @@
           "description": "The updater configuration.",
           "default": {
             "active": false,
+            "allowHttpEndpoint": false,
             "dialog": true,
             "pubkey": "",
             "windows": {
@@ -2820,6 +2822,10 @@
           "items": {
             "$ref": "#/definitions/UpdaterEndpoint"
           }
+        },
+        "allowHttpEndpoint": {
+          "default": false,
+          "type": "boolean"
         },
         "pubkey": {
           "description": "Signature public key.",

@@ -2514,16 +2514,7 @@ impl<'de> Deserialize<'de> for UpdaterEndpoint {
   where
     D: Deserializer<'de>,
   {
-    let url = Url::deserialize(deserializer)?;
-    #[cfg(all(not(debug_assertions), not(feature = "schema")))]
-    {
-      if url.scheme() != "https" {
-        return Err(serde::de::Error::custom(
-          "The configured updater endpoint must use the `https` protocol.",
-        ));
-      }
-    }
-    Ok(Self(url))
+    Ok(Self(Url::deserialize(deserializer)?))
   }
 }
 
@@ -2651,6 +2642,8 @@ pub struct UpdaterConfig {
   /// - "https://updates.app.dev/{{target}}?version={{current_version}}&arch={{arch}}": a dedicated API with positional and query string arguments.
   #[allow(rustdoc::bare_urls)]
   pub endpoints: Option<Vec<UpdaterEndpoint>>,
+  #[serde(default)]
+  pub allow_http_endpoint: bool,
   /// Signature public key.
   #[serde(default)] // use default just so the schema doesn't flag it as required
   pub pubkey: String,
@@ -2665,12 +2658,15 @@ impl<'de> Deserialize<'de> for UpdaterConfig {
     D: Deserializer<'de>,
   {
     #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
     struct InnerUpdaterConfig {
       #[serde(default)]
       active: bool,
       #[serde(default = "default_true")]
       dialog: bool,
       endpoints: Option<Vec<UpdaterEndpoint>>,
+      #[serde(default)]
+      allow_http_endpoint: bool,
       pubkey: Option<String>,
       #[serde(default)]
       windows: UpdaterWindowsConfig,
@@ -2684,10 +2680,20 @@ impl<'de> Deserialize<'de> for UpdaterConfig {
       ));
     }
 
+    #[cfg(all(not(debug_assertions), not(feature = "schema")))]
+    {
+      if !config.allow_http_endpoint && url.scheme() != "https" {
+        return Err(serde::de::Error::custom(
+          "The configured updater endpoint must use the `https` protocol.",
+        ));
+      }
+    }
+
     Ok(UpdaterConfig {
       active: config.active,
       dialog: config.dialog,
       endpoints: config.endpoints,
+      allow_http_endpoint: config.allow_http_endpoint,
       pubkey: config.pubkey.unwrap_or_default(),
       windows: config.windows,
     })
@@ -2700,6 +2706,7 @@ impl Default for UpdaterConfig {
       active: false,
       dialog: true,
       endpoints: None,
+      allow_http_endpoint: false,
       pubkey: "".into(),
       windows: Default::default(),
     }
@@ -3984,6 +3991,7 @@ mod test {
       updater: UpdaterConfig {
         active: false,
         dialog: true,
+        allow_http_endpoint: false,
         pubkey: "".into(),
         endpoints: None,
         windows: Default::default(),
