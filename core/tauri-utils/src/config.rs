@@ -2642,6 +2642,7 @@ pub struct UpdaterConfig {
   /// - "https://updates.app.dev/{{target}}?version={{current_version}}&arch={{arch}}": a dedicated API with positional and query string arguments.
   #[allow(rustdoc::bare_urls)]
   pub endpoints: Option<Vec<UpdaterEndpoint>>,
+  /// Allows bypassing TLS enforcement on production.
   #[serde(default)]
   pub allow_http_endpoint: bool,
   /// Signature public key.
@@ -3616,6 +3617,7 @@ mod build {
     fn to_tokens(&self, tokens: &mut TokenStream) {
       let active = self.active;
       let dialog = self.dialog;
+      let allow_http_endpoint = self.allow_http_endpoint;
       let pubkey = str_lit(&self.pubkey);
       let endpoints = opt_lit(
         self
@@ -3637,6 +3639,7 @@ mod build {
         active,
         dialog,
         pubkey,
+        allow_http_endpoint,
         endpoints,
         windows
       );

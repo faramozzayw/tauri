@@ -2824,6 +2824,7 @@
           }
         },
         "allowHttpEndpoint": {
+          "description": "Allows bypassing TLS enforcement on production.",
           "default": false,
           "type": "boolean"
         },
