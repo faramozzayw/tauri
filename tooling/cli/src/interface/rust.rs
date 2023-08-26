@@ -1111,6 +1111,7 @@ fn tauri_config_to_bundle_settings(
       // we set it to true by default we shouldn't have to use
       // unwrap_or as we have a default value but used to prevent any failing
       dialog: updater_config.dialog,
+      allow_http_endpoint: updater_config.allow_http_endpoint,
       pubkey: updater_config.pubkey,
       endpoints: updater_config
         .endpoints

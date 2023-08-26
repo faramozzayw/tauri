@@ -163,6 +163,8 @@ pub struct UpdaterSettings {
   pub pubkey: String,
   /// Display built-in dialog or use event system if disabled.
   pub dialog: bool,
+  /// Allows bypassing TLS enforcement on production.
+  pub allow_http_endpoint: bool,
   /// Args to pass to `msiexec.exe` to run the updater on Windows.
   pub msiexec_args: Option<&'static [&'static str]>,
 }
