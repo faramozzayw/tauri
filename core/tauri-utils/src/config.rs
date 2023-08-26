@@ -2683,10 +2683,14 @@ impl<'de> Deserialize<'de> for UpdaterConfig {
 
     #[cfg(all(not(debug_assertions), not(feature = "schema")))]
     {
-      if !config.allow_http_endpoint && url.scheme() != "https" {
-        return Err(serde::de::Error::custom(
-          "The configured updater endpoint must use the `https` protocol.",
-        ));
+      if let Some(endpoints) = &config.endpoints {
+        for endpoint in endpoints {
+          if !config.allow_http_endpoint && endpoint.0.scheme() != "https" {
+            return Err(serde::de::Error::custom(
+              "The configured updater endpoint must use the `https` protocol.",
+            ));
+          }
+        }
       }
     }
 
